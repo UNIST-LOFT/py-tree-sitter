@@ -714,6 +714,25 @@ static Py_hash_t node_hash(Node *self) {
     return tree_hash ^ id_hash;
 }
 
+/**
+ * Added by FreddyYJ.
+*/
+
+/**
+ * Get the value of node.
+*/
+static PyObject* node_get_value(Node* self) {
+    return PyUnicode_FromString(ts_node_find_value(self->node));
+}
+
+/**
+ * Print syntax tree.
+*/
+static PyObject* node_print_tree(Node* self) {
+    ts_node_print_tree(self->node,0);
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef node_methods[] = {
     {
         .ml_name = "walk",
@@ -812,6 +831,18 @@ static PyMethodDef node_methods[] = {
         .ml_doc = "named_descendant_for_point_range(start_point, end_point)\n--\n\n\
 			   Get the smallest named node within this node that spans the given point range.",
     },
+
+    /**
+     * Added by FreddyYJ.
+    */
+    {
+        .ml_name = "print_tree",
+        .ml_meth = (PyCFunction)node_print_tree,
+        .ml_flags = METH_NOARGS,
+        .ml_doc = "print_tree()\n--\n\n\
+               Print the syntax tree.",
+    },
+
     {NULL},
 };
 
@@ -855,6 +886,12 @@ static PyGetSetDef node_accessors[] = {
     {"descendant_count", (getter)node_get_descendant_count, NULL,
      "The number of descendants for a node, including itself", NULL},
     {"text", (getter)node_get_text, NULL, "The node's text, if tree has not been edited", NULL},
+
+    /**
+     * Added by FreddyYJ
+    */
+    {"value", (getter)node_get_value, NULL, "The node's value", NULL},
+
     {NULL},
 };
 

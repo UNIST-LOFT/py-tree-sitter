@@ -22,7 +22,7 @@ readme = "README.md"
 
 [project.urls]
 Homepage = "https://tree-sitter.github.io/tree-sitter/"
-Source = "https://github.com/tree-sitter/py-tree-sitter"
+Source = "https://github.com/UNIST-LOFT/py-tree-sitter"
 
 [[project.authors]]
 name = "Max Brunsfeld"
