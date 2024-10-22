@@ -562,6 +562,25 @@ Py_hash_t node_hash(Node *self) {
     return id == tree ? id : id ^ tree;
 }
 
+/**
+ * Added by FreddyYJ.
+*/
+
+/**
+ * Get the value of node.
+*/
+PyObject* node_get_value(Node* self) {
+    return PyUnicode_FromString(ts_node_find_value(self->node));
+}
+
+/**
+ * Print syntax tree.
+*/
+PyObject* node_print_tree(Node* self) {
+    ts_node_print_tree(self->node,0);
+    Py_RETURN_NONE;
+}
+
 PyDoc_STRVAR(node_walk_doc, "walk(self, /)\n--\n\n"
                             "Create a new :class:`TreeCursor` starting from this node.");
 PyDoc_STRVAR(node_edit_doc,
@@ -615,6 +634,12 @@ PyDoc_STRVAR(node_named_descendant_for_point_range_doc,
 PyDoc_STRVAR(node_child_containing_descendant_doc,
              "child_containing_descendant(self, descendant, /)\n--\n\n"
              "Get the child of the node that contains the given descendant.");
+
+/**
+ * Added by FreddyYJ.
+ */
+PyDoc_STRVAR(node_print_tree_doc, "print_tree(self, /)\n--\n\n\
+               Print the syntax tree.");
 
 static PyMethodDef node_methods[] = {
     {
@@ -701,6 +726,15 @@ static PyMethodDef node_methods[] = {
         .ml_flags = METH_VARARGS,
         .ml_doc = node_child_containing_descendant_doc,
     },
+    /**
+     * Added by FreddyYJ.
+    */
+    {
+        .ml_name = "print_tree",
+        .ml_meth = (PyCFunction)node_print_tree,
+        .ml_flags = METH_NOARGS,
+        .ml_doc = node_print_tree_doc,
+    },
     {NULL},
 };
 
@@ -779,6 +813,10 @@ static PyGetSetDef node_accessors[] = {
      PyDoc_STR("This node's number of descendants, including the node itself."), NULL},
     {"text", (getter)node_get_text, NULL,
      PyDoc_STR("The text of the node, if the tree has not been edited"), NULL},
+    /**
+     * Added by FreddyYJ
+    */
+    {"value", (getter)node_get_value, NULL, PyDoc_STR("The node's value"), NULL},
     {NULL},
 };
 

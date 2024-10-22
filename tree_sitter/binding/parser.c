@@ -94,7 +94,7 @@ PyObject *parser_parse(Parser *self, PyObject *args, PyObject *kwargs) {
     if (strcmp(encoding, "utf8") == 0) {
         input_encoding = TSInputEncodingUTF8;
     } else if (strcmp(encoding, "utf16") == 0) {
-        input_encoding = TSInputEncodingUTF16;
+        input_encoding = TSInputEncodingUTF16BE;
     } else {
         // try to normalize the encoding and check again
         PyObject *encodings = PyImport_ImportModule("encodings");
@@ -122,7 +122,7 @@ PyObject *parser_parse(Parser *self, PyObject *args, PyObject *kwargs) {
             input_encoding = TSInputEncodingUTF8;
         } else if (strcmp(normalized_str, "utf16") == 0 || strcmp(normalized_str, "utf_16") == 0) {
             Py_DECREF(normalized_obj);
-            input_encoding = TSInputEncodingUTF16;
+            input_encoding = TSInputEncodingUTF16BE;
         } else {
             Py_DECREF(normalized_obj);
             goto encoding_error;
