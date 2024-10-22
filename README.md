@@ -2,6 +2,7 @@
 
 [![CI][ci]](https://github.com/tree-sitter/py-tree-sitter/actions/workflows/ci.yml)
 [![pypi][pypi]](https://pypi.org/project/tree-sitter/)
+[![docs][docs]](https://tree-sitter.github.io/py-tree-sitter/)
 
 This module provides Python bindings to the [tree-sitter] parsing library.
 
@@ -35,45 +36,7 @@ Then, you can load it as a `Language` object:
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser
 
-PY_LANGUAGE = Language(tspython.language(), "python")
-```
-
-#### Build from source
-
-> [!WARNING]
-> This method of loading languages is deprecated and will be removed in `v0.22.0`.
-> You should only use it if you need languages that have not updated their bindings.
-> Keep in mind that you will need a C compiler in this case.
-
-First you'll need a Tree-sitter language implementation for each language that you want to parse.
-
-```sh
-git clone https://github.com/tree-sitter/tree-sitter-go
-git clone https://github.com/tree-sitter/tree-sitter-javascript
-git clone https://github.com/tree-sitter/tree-sitter-python
-```
-
-Use the `Language.build_library` method to compile these into a library that's
-usable from Python. This function will return immediately if the library has
-already been compiled since the last time its source code was modified:
-
-```python
-from tree_sitter import Language, Parser
-
-Language.build_library(
-    # Store the library in the `build` directory
-    "build/my-languages.so",
-    # Include one or more languages
-    ["vendor/tree-sitter-go", "vendor/tree-sitter-javascript", "vendor/tree-sitter-python"],
-)
-```
-
-Load the languages into your app as `Language` objects:
-
-```python
-GO_LANGUAGE = Language("build/my-languages.so", "go")
-JS_LANGUAGE = Language("build/my-languages.so", "javascript")
-PY_LANGUAGE = Language("build/my-languages.so", "python")
+PY_LANGUAGE = Language(tspython.language())
 ```
 
 ### Basic parsing
@@ -81,8 +44,7 @@ PY_LANGUAGE = Language("build/my-languages.so", "python")
 Create a `Parser` and configure it to use a language:
 
 ```python
-parser = Parser()
-parser.set_language(PY_LANGUAGE)
+parser = Parser(PY_LANGUAGE)
 ```
 
 Parse some source code:
@@ -95,7 +57,7 @@ def foo():
     if bar:
         baz()
 """,
-        "utf8",
+        "utf8"
     )
 )
 ```
@@ -105,9 +67,9 @@ you can pass a "read" callable to the parse function.
 
 The read callable can use either the byte offset or point tuple to read from
 buffer and return source code as bytes object. An empty bytes object or None
-terminates parsing for that line. The bytes must encode the source as UTF-8.
+terminates parsing for that line. The bytes must be encoded as UTF-8 or UTF-16.
 
-For example, to use the byte offset:
+For example, to use the byte offset with UTF-8 encoding:
 
 ```python
 src = bytes(
@@ -124,7 +86,7 @@ def read_callable_byte_offset(byte_offset, point):
     return src[byte_offset : byte_offset + 1]
 
 
-tree = parser.parse(read_callable_byte_offset)
+tree = parser.parse(read_callable_byte_offset, encoding="utf8")
 ```
 
 And to use the point:
@@ -140,7 +102,7 @@ def read_callable_point(byte_offset, point):
     return src_lines[row][column:].encode("utf8")
 
 
-tree = parser.parse(read_callable_point)
+tree = parser.parse(read_callable_point, encoding="utf8")
 ```
 
 Inspect the resulting `Tree`:
@@ -175,7 +137,7 @@ function_call_args_node = function_call_node.child_by_field_name("arguments")
 assert function_call_args_node.type == "argument_list"
 
 
-assert root_node.sexp() == (
+assert str(root_node) == (
     "(module "
         "(function_definition "
             "name: (identifier) "
@@ -188,6 +150,27 @@ assert root_node.sexp() == (
                             "function: (identifier) "
                             "arguments: (argument_list))))))))"
 )
+```
+
+Or, to use the byte offset with UTF-16 encoding:
+
+```python
+parser.language = JAVASCRIPT
+source_code = bytes("'😎' && '🐍'", "utf16")
+
+def read(byte_position, _):
+    return source_code[byte_position: byte_position + 2]
+
+tree = parser.parse(read, encoding="utf16")
+root_node = tree.root_node
+statement_node = root_node.children[0]
+binary_node = statement_node.children[0]
+snake_node = binary_node.children[2]
+snake = source_code[snake_node.start_byte:snake_node.end_byte]
+
+assert binary_node.type == "binary_expression"
+assert snake_node.type == "string"
+assert snake.decode("utf16") == "'🐍'"
 ```
 
 ### Walking syntax trees
@@ -285,16 +268,12 @@ query = PY_LANGUAGE.query(
 
 ```python
 captures = query.captures(tree.root_node)
-assert len(captures) == 2
-assert captures[0][0] == function_name_node
-assert captures[0][1] == "function.def"
+assert len(captures) == 4
+assert captures["function.def"][0] == function_name_node
+assert captures["function.block"][0] == function_body_node
+assert captures["function.call"][0] == function_call_name_node
+assert captures["function.args"][0] == function_call_args_node
 ```
-
-The `Query.captures()` method takes optional `start_point`, `end_point`,
-`start_byte` and `end_byte` keyword arguments, which can be used to restrict the
-query's range. Only one of the `..._byte` or `..._point` pairs need to be given
-to restrict the range. If all are omitted, the entire range of the passed node
-is used.
 
 #### Matches
 
@@ -303,18 +282,16 @@ matches = query.matches(tree.root_node)
 assert len(matches) == 2
 
 # first match
-assert matches[0][1]["function.def"] == function_name_node
-assert matches[0][1]["function.block"] == function_body_node
+assert matches[0][1]["function.def"] == [function_name_node]
+assert matches[0][1]["function.block"] == [function_body_node]
 
 # second match
-assert matches[1][1]["function.call"] == function_call_name_node
-assert matches[1][1]["function.args"] == function_call_args_node
+assert matches[1][1]["function.call"] == [function_call_name_node]
+assert matches[1][1]["function.args"] == [function_call_args_node]
 ```
 
-The `Query.matches()` method takes the same optional arguments as `Query.captures()`.
 The difference between the two methods is that `Query.matches()` groups captures into matches,
-which is much more useful when your captures within a query relate to each other. It maps the
-capture's name to the node that was captured via a dictionary.
+which is much more useful when your captures within a query relate to each other.
 
 To try out and explore the code referenced in this README, check out [examples/usage.py].
 
@@ -324,5 +301,6 @@ To try out and explore the code referenced in this README, check out [examples/u
 [tree query]: https://tree-sitter.github.io/tree-sitter/using-parsers#query-syntax
 [ci]: https://img.shields.io/github/actions/workflow/status/tree-sitter/py-tree-sitter/ci.yml?logo=github&label=CI
 [pypi]: https://img.shields.io/pypi/v/tree-sitter?logo=pypi&logoColor=ffd242&label=PyPI
+[docs]: https://img.shields.io/github/deployments/tree-sitter/py-tree-sitter/github-pages?logo=sphinx&label=Docs
 [examples/walk_tree.py]: https://github.com/tree-sitter/py-tree-sitter/blob/master/examples/walk_tree.py
 [examples/usage.py]: https://github.com/tree-sitter/py-tree-sitter/blob/master/examples/usage.py
