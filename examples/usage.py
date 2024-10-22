@@ -1,10 +1,9 @@
 from tree_sitter import Language, Parser
 import tree_sitter_python
 
-PY_LANGUAGE = Language(tree_sitter_python.language(), "python")
+PY_LANGUAGE = Language(tree_sitter_python.language())
 
-parser = Parser()
-parser.set_language(PY_LANGUAGE)
+parser = Parser(PY_LANGUAGE)
 
 # parsing a string of code
 tree = parser.parse(
@@ -29,7 +28,7 @@ def foo():
 )
 
 
-def read_callable_byte_offset(byte_offset, point):
+def read_callable_byte_offset(byte_offset, _):
     return src[byte_offset : byte_offset + 1]
 
 
@@ -40,7 +39,7 @@ tree = parser.parse(read_callable_byte_offset)
 src_lines = ["\n", "def foo():\n", "    if bar:\n", "        baz()\n"]
 
 
-def read_callable_point(byte_offset, point):
+def read_callable_point(_, point):
     row, column = point
     if row >= len(src_lines) or column >= len(src_lines[row]):
         return None
@@ -80,7 +79,7 @@ assert function_call_args_node.type == "argument_list"
 
 
 # getting the sexp representation of the tree
-assert root_node.sexp() == (
+assert str(root_node) == (
     "(module "
     "(function_definition "
     "name: (identifier) "
@@ -156,23 +155,19 @@ query = PY_LANGUAGE.query(
 # ...with captures
 captures = query.captures(tree.root_node)
 assert len(captures) == 4
-assert captures[0][0] == function_name_node
-assert captures[0][1] == "function.def"
-assert captures[1][0] == function_body_node
-assert captures[1][1] == "function.block"
-assert captures[2][0] == function_call_name_node
-assert captures[2][1] == "function.call"
-assert captures[3][0] == function_call_args_node
-assert captures[3][1] == "function.args"
+assert captures["function.def"][0] == function_name_node
+assert captures["function.block"][0] == function_body_node
+assert captures["function.call"][0] == function_call_name_node
+assert captures["function.args"][0] == function_call_args_node
 
 # ...with matches
 matches = query.matches(tree.root_node)
 assert len(matches) == 2
 
 # first match
-assert matches[0][1]["function.def"] == function_name_node
-assert matches[0][1]["function.block"] == function_body_node
+assert matches[0][1]["function.def"] == [function_name_node]
+assert matches[0][1]["function.block"] == [function_body_node]
 
 # second match
-assert matches[1][1]["function.call"] == function_call_name_node
-assert matches[1][1]["function.args"] == function_call_args_node
+assert matches[1][1]["function.call"] == [function_call_name_node]
+assert matches[1][1]["function.args"] == [function_call_args_node]
