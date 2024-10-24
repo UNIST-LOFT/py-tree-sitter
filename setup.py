@@ -41,7 +41,7 @@ setup(
                 "-std=c11",
                 "-fvisibility=hidden",
                 "-Wno-cast-function-type",
-                # "-Werror=implicit-function-declaration",
+                "-Werror=implicit-function-declaration",
             ] if system() != "Windows" else [
                 "/std:c11",
                 "/wd4244",
