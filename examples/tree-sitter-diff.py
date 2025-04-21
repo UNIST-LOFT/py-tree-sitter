@@ -41,7 +41,7 @@ def compare_ast(node_1: Node,node_2: Node):
             compare_ast(node_1.named_child(i), node_2.named_child(i))
 
         print('Node a has more children')
-        for i in range(node_1.named_child_count-node_2.named_child_count,node_1.named_child_count):
+        for i in range(node_2.named_child_count,node_1.named_child_count):
             print(f'{i}:')
             node_1.named_child(i).print_tree()
             diffs.append((node_1.named_child(i),None,))
@@ -51,7 +51,7 @@ def compare_ast(node_1: Node,node_2: Node):
             compare_ast(node_1.named_child(i), node_2.named_child(i))
 
         print('Node b has more children')
-        for i in range(node_2.named_child_count-node_1.named_child_count,node_2.named_child_count):
+        for i in range(node_1.named_child_count,node_2.named_child_count):
             print(f'{i}:')
             node_2.named_child(i).print_tree()
             diffs.append((None,node_2.named_child(i),))
