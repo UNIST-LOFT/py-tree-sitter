@@ -603,9 +603,17 @@ Py_hash_t node_hash(Node *self) {
 
 /**
  * Get the value of node.
+ * 
+ * If the value is not set, return None.
 */
 PyObject* node_get_value(Node* self) {
-    return PyUnicode_FromString(ts_node_find_value(self->node));
+    char *value = ts_node_find_value(self->node);
+    if (value == NULL) {
+        Py_RETURN_NONE;
+    }
+    else {
+        return PyUnicode_FromString(value);
+    }
 }
 
 /**
