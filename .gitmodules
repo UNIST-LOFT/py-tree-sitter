@@ -5,3 +5,8 @@
 [submodule "languages/c++"]
 	path = languages/c++
 	url = https://github.com/tree-sitter/tree-sitter-cpp.git
+	branch = master
+[submodule "languages/python"]
+	path = languages/python
+	url = https://github.com/tree-sitter/tree-sitter-python.git
+	branch = master
