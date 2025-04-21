@@ -17,14 +17,16 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.githubpages",
 ]
-source_suffix = ".rst"
+source_suffix = {
+    ".rst": "restructuredtext"
+}
 master_doc = "index"
 language = "en"
-needs_sphinx = "7.3"
+needs_sphinx = "8.1"
 templates_path = ["_templates"]
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.9/", None),
+    "python": ("https://docs.python.org/3.10/", None),
 }
 
 autoclass_content = "class"
@@ -41,8 +43,8 @@ napoleon_use_admonition_for_notes = True
 html_theme = "sphinx_book_theme"
 html_theme_options = {
     "repository_url": "https://github.com/tree-sitter/py-tree-sitter",
-    "pygment_light_style": "default",
-    "pygment_dark_style": "github-dark",
+    "pygments_light_style": "default",
+    "pygments_dark_style": "github-dark",
     "navigation_with_keys": False,
     "use_repository_button": True,
     "use_download_button": False,
@@ -54,7 +56,7 @@ html_logo = "_static/logo.png"
 html_favicon = "_static/favicon.png"
 
 
-special_doc = regex("\S*self[^.]+")
+special_doc = regex(r"\S*self[^.]+")
 
 
 def process_signature(_app, _what, name, _obj, _options, _signature, return_annotation):
@@ -67,6 +69,8 @@ def process_signature(_app, _what, name, _obj, _options, _signature, return_anno
     if name == "tree_sitter.Range":
         return "(start_point, end_point, start_byte, end_byte)", return_annotation
     if name == "tree_sitter.QueryPredicate":
+        return None, return_annotation
+    if name == "tree_sitter.LogType":
         return None, return_annotation
 
 
@@ -83,6 +87,8 @@ def process_docstring(_app, what, name, _obj, _options, lines):
 def process_bases(_app, name, _obj, _options, bases):
     if name == "tree_sitter.Point":
         bases[-1] = ":class:`~typing.NamedTuple`"
+    if name == "tree_sitter.LogType":
+        bases[-1] = ":class:`~enum.IntEnum`"
     if name == "tree_sitter.LookaheadIterator":
         bases[-1] = ":class:`~collections.abc.Iterator`"
 

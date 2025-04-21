@@ -48,17 +48,25 @@ static inline bool satisfies_anyof(ModuleState *state, QueryPredicateAnyOf *pred
     PyObject *nodes = nodes_for_capture_index(state, predicate->capture_id, match, tree);
     for (size_t i = 0, l = (size_t)PyList_Size(nodes); i < l; ++i) {
         Node *node = (Node *)PyList_GetItem(nodes, i);
-        PyObject *text1 = node_get_text(node, NULL), *text2;
+        PyObject *text1 = node_get_text(node, NULL);
+        bool found_match = false;
+
         for (size_t j = 0, k = (size_t)PyList_Size(predicate->values); j < k; ++j) {
-            text2 = PyList_GetItem(predicate->values, j);
-            if (PREDICATE_CMP(text1, text2, predicate) != 1) {
-                Py_DECREF(text1);
-                Py_DECREF(nodes);
-                return false;
+            PyObject *text2 = PyList_GetItem(predicate->values, j);
+            if (PREDICATE_CMP(text1, text2, predicate) == 1) {
+                found_match = true;
+                break;
             }
         }
+
         Py_DECREF(text1);
+
+        if (!found_match) {
+            Py_DECREF(nodes);
+            return false;
+        }
     }
+
     Py_DECREF(nodes);
     return true;
 }
@@ -70,7 +78,7 @@ static inline bool satisfies_eq_capture(ModuleState *state, QueryPredicateEqCapt
     PyObject *text1, *text2;
     size_t size1 = (size_t)PyList_Size(nodes1), size2 = (size_t)PyList_Size(nodes2);
     int result = 1;
-    for (size_t i = 0, l = size1 > size2 ? size1 : size2; i < l; ++i) {
+    for (size_t i = 0, l = size1 < size2 ? size1 : size2; i < l; ++i) {
         text1 = node_get_text((Node *)PyList_GetItem(nodes1, i), NULL);
         text2 = node_get_text((Node *)PyList_GetItem(nodes2, i), NULL);
         result = PREDICATE_CMP(text1, text2, predicate);
@@ -107,7 +115,7 @@ static inline bool satisfies_match(ModuleState *state, QueryPredicateMatch *pred
         text = node_get_text((Node *)PyList_GetItem(nodes, i), NULL);
         search_result =
             PyObject_CallMethod(predicate->pattern, "search", "s", PyBytes_AsString(text));
-        result = search_result != NULL && search_result != Py_None;
+        result = (search_result != NULL && search_result != Py_None) == predicate->is_positive;
         Py_DECREF(text);
         Py_XDECREF(search_result);
         PREDICATE_BREAK(predicate, result);
