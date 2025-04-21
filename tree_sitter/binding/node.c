@@ -308,7 +308,9 @@ PyObject *node_child_containing_descendant(Node *self, PyObject *args) {
         return NULL;
     }
 
-    TSNode child = ts_node_child_containing_descendant(self->node, descendant);
+    // TODO: main tree-sitter does not have this function, fix later
+    // TSNode child = ts_node_child_containing_descendant(self->node, descendant);
+    TSNode child = ts_node_child_with_descendant(self->node, descendant);
     if (ts_node_is_null(child)) {
         Py_RETURN_NONE;
     }
