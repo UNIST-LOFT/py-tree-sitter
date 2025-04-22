@@ -22,11 +22,11 @@ readme = "README.md"
 
 [project.urls]
 Homepage = "https://tree-sitter.github.io/tree-sitter/"
-Source = "https://github.com/tree-sitter/py-tree-sitter"
+Source = "https://github.com/UNIST-LOFT/py-tree-sitter"
 
 [[project.authors]]
-name = "Max Brunsfeld"
-email = "maxbrunsfeld@gmail.com"
+name = "Max Brunsfeld, YoungJae Kim (FreddyYJ)"
+email = "maxbrunsfeld@gmail.com, kyj1411@unist.ac.kr"
 
 [tool.ruff]
 target-version = "py38"
