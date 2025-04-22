@@ -1,10 +1,11 @@
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser, Node
 from sys import argv
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
-PY_LANGUAGE = Language(tspython.language())
-parser = Parser(PY_LANGUAGE)
+PY_LANGUAGE = Language(tspython.language(),'python')
+parser = Parser()
+parser.set_language(PY_LANGUAGE)
 
 with open(argv[1],'r') as f:
     root1 = parser.parse(bytes(f.read(),'utf-8'))
@@ -12,7 +13,7 @@ with open(argv[1],'r') as f:
 with open(argv[2],'r') as f:
     root2 = parser.parse(bytes(f.read(),'utf-8'))
 
-diffs:List[Tuple[Node | None,Node | None]]=[]
+diffs:List[Tuple[Union[Node,None],Union[Node,None]]]=[]
 def compare_ast(node_1: Node,node_2: Node):
     global diffs
 

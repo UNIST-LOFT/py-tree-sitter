@@ -60,6 +60,10 @@ class Node:
     ) -> Optional[Node]:
         """Get the smallest named node within this node that spans the given point range."""
 
+    # Added by FreddyYJ
+    def print_tree(self) -> None:
+        """Print the tree structure of this node."""
+
     @property
     def id(self) -> int:
         """The node's numeric id"""
@@ -179,6 +183,13 @@ class Node:
     @property
     def text(self) -> bytes:
         """The node's text, if tree has not been edited"""
+
+    # Added by FreddyYJ
+    @property
+    def value(self) -> str:
+        """The node's value.
+        If the node does not have a value, return None.
+        """
 
 class Tree:
     """A Syntax Tree"""
