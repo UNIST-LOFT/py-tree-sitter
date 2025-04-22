@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tree-sitter"
-version = "0.25.3"
-description = "Python bindings to the Tree-sitter parsing library"
+version = "0.21.3"
+description = "Python bindings for the Tree-Sitter parsing library"
 keywords = ["incremental", "parsing", "tree-sitter"]
 classifiers = [
     "Intended Audience :: Developers",
@@ -17,38 +17,25 @@ classifiers = [
     "Topic :: Text Processing :: Linguistic",
     "Typing :: Typed",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 readme = "README.md"
 
 [project.urls]
 Homepage = "https://tree-sitter.github.io/tree-sitter/"
-Source = "https://github.com/UNIST-LOFT/py-tree-sitter"
-Documentation = "https://tree-sitter.github.io/py-tree-sitter/"
-Discord = "https://discord.gg/w7nTvsVJhm"
-Matrix = "https://matrix.to/#/#tree-sitter-chat:matrix.org"
+Source = "https://github.com/tree-sitter/py-tree-sitter"
 
 [[project.authors]]
 name = "Max Brunsfeld"
 email = "maxbrunsfeld@gmail.com"
 
-[project.optional-dependencies]
-docs = ["sphinx~=8.1", "sphinx-book-theme"]
-tests = [
-    "tree-sitter-html>=0.23.2",
-    "tree-sitter-javascript>=0.23.1",
-    "tree-sitter-json>=0.24.8",
-    "tree-sitter-python>=0.23.6",
-    "tree-sitter-rust>=0.23.2",
-]
-
 [tool.ruff]
-target-version = "py310"
+target-version = "py38"
 line-length = 100
 indent-width = 4
 extend-exclude = [
     ".github",
     "__pycache__",
-    "setup.py",
+    "tests/fixtures",
     "tree_sitter/core",
 ]
 
@@ -58,16 +45,7 @@ indent-style = "space"
 
 [tool.cibuildwheel]
 build-frontend = "build"
-test-extras = ["tests"]
 test-command = "python -munittest discover -s {project}/tests"
 
-[tool.mypy]
-exclude = ["tree_sitter/core"]
-
-[tool.rstcheck]
-ignore_directives = [
-    "autoclass",
-    "autodata",
-    "automethod",
-    "autosummary"
-]
+[tool.cibuildwheel.environment]
+PYTHONWARNINGS = "ignore:::tree_sitter"
