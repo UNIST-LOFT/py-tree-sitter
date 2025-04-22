@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=43"]
+requires = ["setuptools>=43","tree-sitter-python","tree-sitter-c","tree-sitter-cpp"]
 build-backend = "setuptools.build_meta"
 
 [project]
