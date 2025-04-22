@@ -5,6 +5,9 @@
 
 This module provides Python bindings to the [tree-sitter] parsing library.
 
+The 0.21.x branch provides compatibility for Python 3.8 or 3.9 because main branch only supports Python 3.10+.
+Thus, tree-sitter cores, bindings and language implementations should be 0.21.x as well.
+
 ## Installation
 
 The package has no library dependencies and provides pre-compiled wheels for all major platforms.
@@ -26,8 +29,11 @@ Tree-sitter language implementations also provide pre-compiled binary wheels.
 Let's take [Python][tree-sitter-python] as an example.
 
 ```sh
-pip install tree-sitter-python
+pip install tree-sitter-python==0.21.0
 ```
+
+:warning: The version of the language implementation must be 0.21.x.
+Higher versions are not compatible with the current version of the bindings.
 
 Then, you can load it as a `Language` object:
 
