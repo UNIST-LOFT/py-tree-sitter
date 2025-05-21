@@ -190,6 +190,12 @@ class Node:
         """The node's value.
         If the node does not have a value, return None.
         """
+    
+    @property
+    def value_2(self) -> str:
+        """The node's secondary value.
+        If the node does not have a value, return None.
+        """
 
 class Tree:
     """A Syntax Tree"""

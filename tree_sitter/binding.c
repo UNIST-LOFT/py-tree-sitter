@@ -734,6 +734,21 @@ PyObject* node_get_value(Node* self) {
 }
 
 /**
+ * Get the second value of node.
+ * 
+ * If the second value is not set, return None.
+*/
+PyObject* node_get_value_2(Node* self) {
+    char *value = ts_node_find_value_2(self->node);
+    if (value == NULL) {
+        Py_RETURN_NONE;
+    }
+    else {
+        return PyUnicode_FromString(value);
+    }
+}
+
+/**
  * Print syntax tree.
 */
 PyObject* node_print_tree(Node* self) {
@@ -899,6 +914,7 @@ static PyGetSetDef node_accessors[] = {
      * Added by FreddyYJ
     */
     {"value", (getter)node_get_value, NULL, "The node's value", NULL},
+    {"value_2", (getter)node_get_value_2, NULL, "The node's second value", NULL},
     /* Addition finished */
     {NULL},
 };
