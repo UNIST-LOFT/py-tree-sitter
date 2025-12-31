@@ -1,8 +1,15 @@
 """Py-Tree-sitter"""
 
 from platform import system
+import subprocess
 
 from setuptools import Extension, setup
+
+
+def pkg_config(args):
+    return subprocess.check_output(
+        ["pkg-config", *args, "libffi"]
+    ).decode().split()
 
 setup(
     packages=["tree_sitter"],
@@ -30,6 +37,7 @@ setup(
             extra_compile_args=(
                 ["-std=c11", "-Wno-unused-variable"] if system() != "Windows" else None
             ),
+            extra_link_args=pkg_config(["--libs"]),
         )
     ]
 )
